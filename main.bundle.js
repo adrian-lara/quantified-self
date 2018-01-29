@@ -47,9 +47,11 @@
 	'use strict';
 
 	var foodFetches = __webpack_require__(1);
+	var foodListeners = __webpack_require__(3);
 
 	$(document).ready(function () {
 	  foodFetches.getAllFoods();
+	  foodListeners.newFoodSubmit();
 	});
 
 /***/ }),
@@ -78,7 +80,8 @@
 	};
 
 	module.exports = {
-	  getAllFoods: getAllFoods
+	  getAllFoods: getAllFoods,
+	  renderFoods: renderFoods
 	};
 
 /***/ }),
@@ -102,6 +105,55 @@
 	};
 
 	module.exports = handleResponse;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var postNewFood = __webpack_require__(4).postNewFood;
+
+	var newFoodSubmit = function newFoodSubmit() {
+	  $('#new-food-submit-button').on("click", function (event) {
+	    event.preventDefault(event);
+
+	    var name = $('#new-food-form [name=new-food-name').val();
+	    var calories = $('#new-food-form [name=new-food-calories').val();
+	    postNewFood(name, calories);
+	  });
+	};
+
+	module.exports = {
+	  newFoodSubmit: newFoodSubmit
+	};
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var url = 'https://protected-basin-11627.herokuapp.com/';
+
+	var handleResponse = __webpack_require__(2);
+
+	var postNewFood = function postNewFood(name, calories) {
+	  var newFood = { food: { 'name': name, 'calories': calories } };
+
+	  var postOptions = {
+	    method: "POST",
+	    body: JSON.stringify(newFood),
+	    headers: { 'Content-Type': 'application/json' }
+	  };
+	  fetch(url + '/api/v1/foods', postOptions).then(function (response) {
+	    return handleResponse(response);
+	  });
+	};
+
+	module.exports = {
+	  postNewFood: postNewFood
+	};
 
 /***/ })
 /******/ ]);
