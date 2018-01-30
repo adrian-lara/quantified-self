@@ -80,8 +80,7 @@
 	};
 
 	module.exports = {
-	  getAllFoods: getAllFoods,
-	  renderFoods: renderFoods
+	  getAllFoods: getAllFoods
 	};
 
 /***/ }),
@@ -113,6 +112,7 @@
 	'use strict';
 
 	var postNewFood = __webpack_require__(4).postNewFood;
+	var missingFoodField = __webpack_require__(4).missingFoodField;
 
 	var newFoodSubmit = function newFoodSubmit() {
 	  $('#new-food-submit-button').on("click", function (event) {
@@ -120,6 +120,9 @@
 
 	    var name = $('#new-food-form [name=new-food-name').val();
 	    var calories = $('#new-food-form [name=new-food-calories').val();
+
+	    if (name === "") return missingFoodField(name);
+
 	    postNewFood(name, calories);
 	  });
 	};
@@ -151,8 +154,13 @@
 	  });
 	};
 
+	var missingFoodField = function missingFoodField(name) {
+	  if (name === "") $('#missing-name-alert').append("Please enter a food name");
+	};
+
 	module.exports = {
-	  postNewFood: postNewFood
+	  postNewFood: postNewFood,
+	  missingFoodField: missingFoodField
 	};
 
 /***/ })
