@@ -80,8 +80,7 @@
 	};
 
 	module.exports = {
-	  getAllFoods: getAllFoods,
-	  renderFoods: renderFoods
+	  getAllFoods: getAllFoods
 	};
 
 /***/ }),
@@ -113,6 +112,9 @@
 	'use strict';
 
 	var postNewFood = __webpack_require__(4).postNewFood;
+ valid-food-name
+	var missingFoodField = __webpack_require__(4).missingFoodField;
+	var renderNewFood = __webpack_require__(4).renderNewFood;
 
 	var newFoodSubmit = function newFoodSubmit() {
 	  $('#new-food-submit-button').on("click", function (event) {
@@ -120,7 +122,11 @@
 
 	    var name = $('#new-food-form [name=new-food-name').val();
 	    var calories = $('#new-food-form [name=new-food-calories').val();
+
+	    if (name === "") return missingFoodField(name);
+
 	    postNewFood(name, calories);
+	    renderNewFood(name, calories);
 	  });
 	};
 
@@ -137,6 +143,7 @@
 	var url = 'https://protected-basin-11627.herokuapp.com/';
 
 	var handleResponse = __webpack_require__(2);
+	var renderFoods = __webpack_require__(1).renderFoods;
 
 	var postNewFood = function postNewFood(name, calories) {
 	  var newFood = { food: { 'name': name, 'calories': calories } };
@@ -151,8 +158,19 @@
 	  });
 	};
 
+	var missingFoodField = function missingFoodField(name) {
+	  if (name === "") $('#missing-name-alert').append("Please enter a food name");
+	var renderNewFood = function renderNewFood(name, calories) {
+	  var foodInArray = [{ "name": name, "calories": calories }];
+
+	  renderFoods(foodInArray);
+	};
+
 	module.exports = {
-	  postNewFood: postNewFood
+	  postNewFood: postNewFood,
+ valid-food-name
+	  missingFoodField: missingFoodField
+	  renderNewFood: renderNewFood
 	};
 
 /***/ })
