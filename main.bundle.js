@@ -52,6 +52,7 @@
 	$(document).ready(function () {
 	  foodFetches.getAllFoods();
 	  foodListeners.newFoodSubmit();
+	  foodListeners.deleteFood();
 	});
 
 /***/ }),
@@ -60,7 +61,7 @@
 
 	'use strict';
 
-	var url = 'https://protected-basin-11627.herokuapp.com/';
+	var url = 'https://protected-basin-11627.herokuapp.com';
 	var handleResponse = __webpack_require__(2);
 
 	var getAllFoods = function getAllFoods() {
@@ -75,13 +76,17 @@
 
 	var renderFoods = function renderFoods(foods) {
 	  foods.forEach(function (food) {
-	    $('#foods-table').append('\n      <tr>\n        <td>' + food.name + '</td>\n        <td>' + food.calories + '</td>\n        <td>(button placeholder)</td>\n      </tr>\n      ');
+	    $('#foods-table').append('\n      <tr data-food-id="' + food.id + '">\n        <td>' + food.name + '</td>\n        <td>' + food.calories + '</td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n      </tr>\n      ');
 	  });
 	};
 
+	function deleteFoodRecord(id) {
+	  fetch(url + '/api/v1/foods/' + id, { method: 'DELETE' });
+	}
+
 	module.exports = {
 	  getAllFoods: getAllFoods,
-	  renderFoods: renderFoods
+	  deleteFoodRecord: deleteFoodRecord
 	};
 
 /***/ }),
@@ -113,6 +118,8 @@
 	'use strict';
 
 	var postNewFood = __webpack_require__(4).postNewFood;
+	var removeFood = __webpack_require__(4).removeFood;
+	var deleteFoodRecord = __webpack_require__(1).deleteFoodRecord;
 
 	var newFoodSubmit = function newFoodSubmit() {
 	  $('#new-food-submit-button').on("click", function (event) {
@@ -124,8 +131,17 @@
 	  });
 	};
 
+	function deleteFood() {
+	  $('#foods-table').on("click", ".delete-btns", function (event) {
+	    var id = event.target.dataset.deleteBtnId;
+	    removeFood(id);
+	    deleteFoodRecord(id);
+	  });
+	}
+
 	module.exports = {
-	  newFoodSubmit: newFoodSubmit
+	  newFoodSubmit: newFoodSubmit,
+	  deleteFood: deleteFood
 	};
 
 /***/ }),
@@ -151,8 +167,13 @@
 	  });
 	};
 
+	function removeFood(id) {
+	  $('[data-food-id=' + id + ']').remove();
+	}
+
 	module.exports = {
-	  postNewFood: postNewFood
+	  postNewFood: postNewFood,
+	  removeFood: removeFood
 	};
 
 /***/ })
