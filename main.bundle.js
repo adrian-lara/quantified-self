@@ -85,8 +85,12 @@
 	}
 
 	module.exports = {
+<<<<<<< HEAD
 	  getAllFoods: getAllFoods,
 	  deleteFoodRecord: deleteFoodRecord
+=======
+	  getAllFoods: getAllFoods
+>>>>>>> master
 	};
 
 /***/ }),
@@ -118,8 +122,14 @@
 	'use strict';
 
 	var postNewFood = __webpack_require__(4).postNewFood;
+<<<<<<< HEAD
 	var removeFood = __webpack_require__(4).removeFood;
 	var deleteFoodRecord = __webpack_require__(1).deleteFoodRecord;
+=======
+ valid-food-name
+	var missingFoodField = __webpack_require__(4).missingFoodField;
+	var renderNewFood = __webpack_require__(4).renderNewFood;
+>>>>>>> master
 
 	var newFoodSubmit = function newFoodSubmit() {
 	  $('#new-food-submit-button').on("click", function (event) {
@@ -127,7 +137,11 @@
 
 	    var name = $('#new-food-form [name=new-food-name').val();
 	    var calories = $('#new-food-form [name=new-food-calories').val();
+
+	    if (name === "") return missingFoodField(name);
+
 	    postNewFood(name, calories);
+	    renderNewFood(name, calories);
 	  });
 	};
 
@@ -153,6 +167,7 @@
 	var url = 'https://protected-basin-11627.herokuapp.com/';
 
 	var handleResponse = __webpack_require__(2);
+	var renderFoods = __webpack_require__(1).renderFoods;
 
 	var postNewFood = function postNewFood(name, calories) {
 	  var newFood = { food: { 'name': name, 'calories': calories } };
@@ -167,6 +182,7 @@
 	  });
 	};
 
+<<<<<<< HEAD
 	function removeFood(id) {
 	  $('[data-food-id=' + id + ']').remove();
 	}
@@ -174,6 +190,21 @@
 	module.exports = {
 	  postNewFood: postNewFood,
 	  removeFood: removeFood
+=======
+	var missingFoodField = function missingFoodField(name) {
+	  if (name === "") $('#missing-name-alert').append("Please enter a food name");
+	var renderNewFood = function renderNewFood(name, calories) {
+	  var foodInArray = [{ "name": name, "calories": calories }];
+
+	  renderFoods(foodInArray);
+	};
+
+	module.exports = {
+	  postNewFood: postNewFood,
+ valid-food-name
+	  missingFoodField: missingFoodField
+	  renderNewFood: renderNewFood
+>>>>>>> master
 	};
 
 /***/ })
