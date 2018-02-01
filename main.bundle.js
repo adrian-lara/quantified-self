@@ -47,7 +47,7 @@
 	'use strict';
 
 	var foodFetches = __webpack_require__(1);
-	var foodListeners = __webpack_require__(3);
+	var foodListeners = __webpack_require__(4);
 
 	$(document).ready(function () {
 	  foodFetches.getAllFoods();
@@ -63,6 +63,7 @@
 
 	var url = 'https://protected-basin-11627.herokuapp.com';
 	var handleResponse = __webpack_require__(2);
+	var removeFood = __webpack_require__(3).removeFood;
 
 	var getAllFoods = function getAllFoods() {
 	  fetch(url + '/api/v1/foods').then(function (response) {
@@ -74,23 +75,22 @@
 	  });
 	};
 
-	var renderFoods = function renderFoods(foods) {
+	function renderFoods(foods) {
 	  foods.forEach(function (food) {
 	    $('#foods-table').append('\n      <tr data-food-id="' + food.id + '">\n        <td>' + food.name + '</td>\n        <td>' + food.calories + '</td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n      </tr>\n      ');
 	  });
-	};
+	}
 
 	function deleteFoodRecord(id) {
-	  fetch(url + '/api/v1/foods/' + id, { method: 'DELETE' });
+	  fetch(url + '/api/v1/foods/' + id, { method: 'DELETE' }).then(removeFood(id)).catch(function (error) {
+	    return console.alert(error);
+	  });
 	}
 
 	module.exports = {
-<<<<<<< HEAD
 	  getAllFoods: getAllFoods,
-	  deleteFoodRecord: deleteFoodRecord
-=======
-	  getAllFoods: getAllFoods
->>>>>>> master
+	  deleteFoodRecord: deleteFoodRecord,
+	  renderFoods: renderFoods
 	};
 
 /***/ }),
@@ -121,49 +121,6 @@
 
 	'use strict';
 
-	var postNewFood = __webpack_require__(4).postNewFood;
-<<<<<<< HEAD
-	var removeFood = __webpack_require__(4).removeFood;
-	var deleteFoodRecord = __webpack_require__(1).deleteFoodRecord;
-=======
- valid-food-name
-	var missingFoodField = __webpack_require__(4).missingFoodField;
-	var renderNewFood = __webpack_require__(4).renderNewFood;
->>>>>>> master
-
-	var newFoodSubmit = function newFoodSubmit() {
-	  $('#new-food-submit-button').on("click", function (event) {
-	    event.preventDefault(event);
-
-	    var name = $('#new-food-form [name=new-food-name').val();
-	    var calories = $('#new-food-form [name=new-food-calories').val();
-
-	    if (name === "") return missingFoodField(name);
-
-	    postNewFood(name, calories);
-	    renderNewFood(name, calories);
-	  });
-	};
-
-	function deleteFood() {
-	  $('#foods-table').on("click", ".delete-btns", function (event) {
-	    var id = event.target.dataset.deleteBtnId;
-	    removeFood(id);
-	    deleteFoodRecord(id);
-	  });
-	}
-
-	module.exports = {
-	  newFoodSubmit: newFoodSubmit,
-	  deleteFood: deleteFood
-	};
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-
 	var url = 'https://protected-basin-11627.herokuapp.com/';
 
 	var handleResponse = __webpack_require__(2);
@@ -182,17 +139,14 @@
 	  });
 	};
 
-<<<<<<< HEAD
 	function removeFood(id) {
 	  $('[data-food-id=' + id + ']').remove();
 	}
 
-	module.exports = {
-	  postNewFood: postNewFood,
-	  removeFood: removeFood
-=======
 	var missingFoodField = function missingFoodField(name) {
 	  if (name === "") $('#missing-name-alert').append("Please enter a food name");
+	};
+
 	var renderNewFood = function renderNewFood(name, calories) {
 	  var foodInArray = [{ "name": name, "calories": calories }];
 
@@ -201,10 +155,46 @@
 
 	module.exports = {
 	  postNewFood: postNewFood,
- valid-food-name
-	  missingFoodField: missingFoodField
+	  removeFood: removeFood,
+	  missingFoodField: missingFoodField,
 	  renderNewFood: renderNewFood
->>>>>>> master
+	};
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var postNewFood = __webpack_require__(3).postNewFood;
+	var missingFoodField = __webpack_require__(3).missingFoodField;
+	var renderNewFood = __webpack_require__(3).renderNewFood;
+	var deleteFoodRecord = __webpack_require__(1).deleteFoodRecord;
+
+	var newFoodSubmit = function newFoodSubmit() {
+	  $('#new-food-submit-button').on("click", function (event) {
+	    event.preventDefault(event);
+
+	    var name = $('#new-food-form [name=new-food-name').val();
+	    var calories = $('#new-food-form [name=new-food-calories').val();
+
+	    if (name === "") return missingFoodField(name);
+
+	    postNewFood(name, calories);
+	    renderNewFood(name, calories);
+	  });
+	};
+
+	function deleteFood() {
+	  $('#foods-table').on("click", ".delete-btns", function (event) {
+	    var id = event.target.dataset.deleteBtnId;
+	    deleteFoodRecord(id);
+	  });
+	}
+
+	module.exports = {
+	  newFoodSubmit: newFoodSubmit,
+	  deleteFood: deleteFood
 	};
 
 /***/ })
