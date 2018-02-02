@@ -55,6 +55,7 @@
 	  foodFetches.getAllFoods();
 	  foodListeners.newFoodSubmit();
 	  foodListeners.deleteFood();
+	  foodListeners.filterFood();
 	  mealFetchRequests.getAllMeals();
 	});
 
@@ -10522,7 +10523,7 @@
 
 	function renderFoods(foods) {
 	  foods.forEach(function (food) {
-	    $('#foods-table').append('\n      <tr data-food-id="' + food.id + '">\n        <td>' + food.name + '</td>\n        <td>' + food.calories + '</td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n      </tr>\n      ');
+	    $('#foods-table').append('\n      <tr class="table-row" data-food-id="' + food.id + '">\n        <td>\n          ' + food.name + '\n          <span hidden class="filter-target">' + food.name.toLowerCase() + '</span>\n        </td>\n        <td>' + food.calories + '</td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n      </tr>\n      ');
 	  });
 	}
 
@@ -10541,11 +10542,27 @@
 	  renderFoods(foodInArray);
 	};
 
+	function search(q) {
+	  if (q === "") return $('.table-row').show();
+
+	  $('.table-row').hide();
+	  $('.table-row:contains(\'' + q + '\')').show();
+	}
+
+	function clearAlerts() {
+	  $(".alerts").empty();
+	}
+
+	function clearNewFoodForm() {
+	  $('#new-food-form [type=text]').val('');
+	}
+
 	module.exports = {
 	  renderFoods: renderFoods,
 	  removeFood: removeFood,
 	  missingFoodField: missingFoodField,
-	  renderNewFood: renderNewFood
+	  renderNewFood: renderNewFood,
+	  search: search
 	};
 
 /***/ }),
@@ -10558,6 +10575,7 @@
 	var postNewFood = __webpack_require__(2).postNewFood;
 	var missingFoodField = __webpack_require__(4).missingFoodField;
 	var deleteFoodRecord = __webpack_require__(2).deleteFoodRecord;
+	var search = __webpack_require__(4).search;
 
 	var newFoodSubmit = function newFoodSubmit() {
 	  $('#new-food-submit-button').on("click", function (event) {
@@ -10579,9 +10597,17 @@
 	  });
 	}
 
+	function filterFood() {
+	  $('.filter-form [name=filter-form-value]').on("keyup", function () {
+	    var q = $('.filter-form [name=filter-form-value]').val();
+	    search(q);
+	  });
+	}
+
 	module.exports = {
 	  newFoodSubmit: newFoodSubmit,
-	  deleteFood: deleteFood
+	  deleteFood: deleteFood,
+	  filterFood: filterFood
 	};
 
 /***/ }),
