@@ -10440,6 +10440,8 @@
 	var url = 'https://protected-basin-11627.herokuapp.com/';
 
 	var removeFood = __webpack_require__(4).removeFood;
+	var renderFoods = __webpack_require__(4).renderFoods;
+	var renderNewFood = __webpack_require__(4).renderNewFood;
 
 	var getAllFoods = function getAllFoods() {
 	  fetch(url + '/api/v1/foods').then(function (response) {
@@ -10451,22 +10453,34 @@
 	  });
 	};
 
-	function renderFoods(foods) {
-	  foods.forEach(function (food) {
-	    $('#foods-table').append('\n      <tr data-food-id="' + food.id + '">\n        <td>' + food.name + '</td>\n        <td>' + food.calories + '</td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n      </tr>\n      ');
-	  });
-	}
-
 	function deleteFoodRecord(id) {
 	  fetch(url + '/api/v1/foods/' + id, { method: 'DELETE' }).then(removeFood(id)).catch(function (error) {
 	    return console.alert(error);
 	  });
 	}
 
+	function postNewFood(name, calories) {
+	  var newFood = { food: { 'name': name, 'calories': calories } };
+
+	  var postOptions = {
+	    method: "POST",
+	    body: JSON.stringify(newFood),
+	    headers: {
+	      'Content-Type': 'application/json'
+	    }
+	  };
+	  fetch(url + '/api/v1/foods', postOptions).then(function (response) {
+	    return (0, _initialResponseHandler.handleResponse)(response);
+	  }).then(function (food) {
+	    return renderNewFood(food);
+	  });
+	}
+
 	module.exports = {
 	  getAllFoods: getAllFoods,
 	  deleteFoodRecord: deleteFoodRecord,
-	  renderFoods: renderFoods
+	  renderFoods: renderFoods,
+	  postNewFood: postNewFood
 	};
 
 /***/ }),
@@ -10505,20 +10519,12 @@
 	var url = 'https://protected-basin-11627.herokuapp.com/';
 
 	var handleResponse = __webpack_require__(3);
-	var renderFoods = __webpack_require__(2).renderFoods;
 
-	var postNewFood = function postNewFood(name, calories) {
-	  var newFood = { food: { 'name': name, 'calories': calories } };
-
-	  var postOptions = {
-	    method: "POST",
-	    body: JSON.stringify(newFood),
-	    headers: { 'Content-Type': 'application/json' }
-	  };
-	  fetch(url + '/api/v1/foods', postOptions).then(function (response) {
-	    return handleResponse(response);
+	function renderFoods(foods) {
+	  foods.forEach(function (food) {
+	    $('#foods-table').append('\n      <tr data-food-id="' + food.id + '">\n        <td>' + food.name + '</td>\n        <td>' + food.calories + '</td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n      </tr>\n      ');
 	  });
-	};
+	}
 
 	function removeFood(id) {
 	  $('[data-food-id=' + id + ']').remove();
@@ -10529,14 +10535,14 @@
 	  if (calories === "") $('#missing-calories-alert').append("Please enter a calorie amount");
 	};
 
-	var renderNewFood = function renderNewFood(name, calories) {
-	  var foodInArray = [{ "name": name, "calories": calories }];
+	var renderNewFood = function renderNewFood(food) {
+	  var foodInArray = [food];
 
 	  renderFoods(foodInArray);
 	};
 
 	module.exports = {
-	  postNewFood: postNewFood,
+	  renderFoods: renderFoods,
 	  removeFood: removeFood,
 	  missingFoodField: missingFoodField,
 	  renderNewFood: renderNewFood
@@ -10549,9 +10555,8 @@
 	'use strict';
 
 	var $ = __webpack_require__(1);
-	var postNewFood = __webpack_require__(4).postNewFood;
+	var postNewFood = __webpack_require__(2).postNewFood;
 	var missingFoodField = __webpack_require__(4).missingFoodField;
-	var renderNewFood = __webpack_require__(4).renderNewFood;
 	var deleteFoodRecord = __webpack_require__(2).deleteFoodRecord;
 
 	var newFoodSubmit = function newFoodSubmit() {
@@ -10564,7 +10569,6 @@
 	    if (name === "" || calories === "") return missingFoodField(name, calories);
 
 	    postNewFood(name, calories);
-	    renderNewFood(name, calories);
 	  });
 	};
 
