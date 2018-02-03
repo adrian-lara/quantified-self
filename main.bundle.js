@@ -10446,6 +10446,7 @@
 	exports.getAllFoods = getAllFoods;
 	exports.deleteFoodRecord = deleteFoodRecord;
 	exports.postNewFood = postNewFood;
+	exports.updateFood = updateFood;
 
 	var _jquery = __webpack_require__(1);
 
@@ -10456,6 +10457,8 @@
 	var _foodsResponseHandlers = __webpack_require__(4);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 	var url = 'https://protected-basin-11627.herokuapp.com/';
 
@@ -10491,6 +10494,25 @@
 	  }).then(function (food) {
 	    return (0, _foodsResponseHandlers.renderNewFood)(food);
 	  }).then((0, _foodsResponseHandlers.clearAlerts)()).then((0, _foodsResponseHandlers.clearNewFoodForm)());
+	}
+
+	function updateFood(newValue, prop, $targetRow) {
+	  var foodId = $targetRow.dataset.foodId;
+	  var foodInfo = { food: _defineProperty({}, prop, newValue) };
+
+	  var patchOptions = {
+	    method: 'PATCH',
+	    body: JSON.stringify(foodInfo),
+	    headers: { 'Content-Type': 'application/json' }
+	  };
+
+	  fetch(url + '/api/v1/foods/' + foodId, patchOptions).then(function (response) {
+	    return (0, _initialResponseHandler.handleResponse)(response);
+	  }).then(function (food) {
+	    return (0, _foodsResponseHandlers.updateSearchFilter)(food, prop, $targetRow);
+	  }).catch(function (error) {
+	    return console.alert(error);
+	  });
 	}
 
 /***/ }),
@@ -10540,6 +10562,7 @@
 	exports.search = search;
 	exports.clearAlerts = clearAlerts;
 	exports.clearNewFoodForm = clearNewFoodForm;
+	exports.updateSearchFilter = updateSearchFilter;
 
 	var _jquery = __webpack_require__(1);
 
@@ -10551,7 +10574,7 @@
 
 	function renderFoods(foods) {
 	  foods.forEach(function (food) {
-	    (0, _jquery2.default)('#foods-table').append('\n      <tr class="table-row" data-food-id="' + food.id + '">\n        <td>\n          ' + food.name + '\n          <span hidden class="filter-target">' + food.name.toLowerCase() + '</span>\n        </td>\n        <td>' + food.calories + '</td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n      </tr>\n      ');
+	    (0, _jquery2.default)('#foods-table').append('\n      <tr class="table-row" data-food-id="' + food.id + '">\n        <td class="food-table-cell" contenteditable="true">\n          <span class="food-table-content name">' + food.name + '</span>\n        </td>\n        <td class="food-table-cell" contenteditable="true">\n          <span class="food-table-content calories">' + food.calories + '</span>\n        </td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n        <td hidden><span class="filter-target">' + food.name.toLowerCase() + '</span></td>\n      </tr>\n      ');
 	  });
 	}
 
@@ -10583,6 +10606,13 @@
 
 	function clearNewFoodForm() {
 	  (0, _jquery2.default)('#new-food-form [type=text]').val('');
+	}
+
+	function updateSearchFilter(food, prop, $targetRow) {
+	  if (prop === "name") {
+	    var $hiddenFilterField = $targetRow.children[3].firstChild;
+	    $hiddenFilterField.replaceWith('<span class="filter-target">' + food[prop].toLowerCase() + '</span>');
+	  }
 	}
 
 /***/ }),
@@ -10626,6 +10656,14 @@
 	  (0, _jquery2.default)('.filter-form [name=filter-form-value]').on("keyup", function () {
 	    var q = (0, _jquery2.default)('.filter-form [name=filter-form-value]').val();
 	    (0, _foodsResponseHandlers.search)(q);
+	  });
+
+	  (0, _jquery2.default)('#foods-table').on("focusout", ".food-table-cell", function () {
+	    var $foodTableCell = event.target;
+	    var newValue = $foodTableCell.firstElementChild.textContent;
+	    var prop = $foodTableCell.firstElementChild.classList[1];
+
+	    (0, _foodsFetchRequests.updateFood)(newValue, prop, $foodTableCell.parentElement);
 	  });
 	}
 
