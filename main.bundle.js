@@ -46,16 +46,21 @@
 
 	'use strict';
 
-	var $ = __webpack_require__(1);
-	var foodFetches = __webpack_require__(2);
-	var foodListeners = __webpack_require__(5);
+	var _jquery = __webpack_require__(1);
+
+	var _jquery2 = _interopRequireDefault(_jquery);
+
+	var _foodsFetchRequests = __webpack_require__(2);
+
+	var _foodsEventListeners = __webpack_require__(5);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 	var mealFetchRequests = __webpack_require__(6);
 
-	$(document).ready(function () {
-	  foodFetches.getAllFoods();
-	  foodListeners.newFoodSubmit();
-	  foodListeners.deleteFood();
-	  foodListeners.filterFood();
+	(0, _jquery2.default)(document).ready(function () {
+	  (0, _foodsFetchRequests.getAllFoods)();
+	  (0, _foodsEventListeners.foodListeners)();
 	  mealFetchRequests.getAllMeals();
 	});
 
@@ -10435,27 +10440,37 @@
 
 	'use strict';
 
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.getAllFoods = getAllFoods;
+	exports.deleteFoodRecord = deleteFoodRecord;
+	exports.postNewFood = postNewFood;
+
+	var _jquery = __webpack_require__(1);
+
+	var _jquery2 = _interopRequireDefault(_jquery);
+
 	var _initialResponseHandler = __webpack_require__(3);
 
-	var $ = __webpack_require__(1);
+	var _foodsResponseHandlers = __webpack_require__(4);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 	var url = 'https://protected-basin-11627.herokuapp.com/';
 
-	var removeFood = __webpack_require__(4).removeFood;
-	var renderFoods = __webpack_require__(4).renderFoods;
-	var renderNewFood = __webpack_require__(4).renderNewFood;
-
-	var getAllFoods = function getAllFoods() {
+	function getAllFoods() {
 	  fetch(url + '/api/v1/foods').then(function (response) {
 	    return (0, _initialResponseHandler.handleResponse)(response);
 	  }).then(function (foods) {
-	    return renderFoods(foods);
+	    return (0, _foodsResponseHandlers.renderFoods)(foods);
 	  }).catch(function (error) {
 	    return console.error({ error: error });
 	  });
-	};
+	}
 
 	function deleteFoodRecord(id) {
-	  fetch(url + '/api/v1/foods/' + id, { method: 'DELETE' }).then(removeFood(id)).catch(function (error) {
+	  fetch(url + '/api/v1/foods/' + id, { method: 'DELETE' }).then((0, _foodsResponseHandlers.removeFood)(id)).catch(function (error) {
 	    return console.alert(error);
 	  });
 	}
@@ -10470,19 +10485,13 @@
 	      'Content-Type': 'application/json'
 	    }
 	  };
+
 	  fetch(url + '/api/v1/foods', postOptions).then(function (response) {
 	    return (0, _initialResponseHandler.handleResponse)(response);
 	  }).then(function (food) {
-	    return renderNewFood(food);
-	  });
+	    return (0, _foodsResponseHandlers.renderNewFood)(food);
+	  }).then((0, _foodsResponseHandlers.clearAlerts)()).then((0, _foodsResponseHandlers.clearNewFoodForm)());
 	}
-
-	module.exports = {
-	  getAllFoods: getAllFoods,
-	  deleteFoodRecord: deleteFoodRecord,
-	  renderFoods: renderFoods,
-	  postNewFood: postNewFood
-	};
 
 /***/ }),
 /* 3 */
@@ -10494,7 +10503,12 @@
 	  value: true
 	});
 	exports.handleResponse = handleResponse;
-	var $ = __webpack_require__(1);
+
+	var _jquery = __webpack_require__(1);
+
+	var _jquery2 = _interopRequireDefault(_jquery);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function handleResponse(response) {
 	  return response.json().then(function (json) {
@@ -10516,54 +10530,60 @@
 
 	'use strict';
 
-	var $ = __webpack_require__(1);
-	var url = 'https://protected-basin-11627.herokuapp.com/';
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.renderFoods = renderFoods;
+	exports.removeFood = removeFood;
+	exports.missingFoodField = missingFoodField;
+	exports.renderNewFood = renderNewFood;
+	exports.search = search;
+	exports.clearAlerts = clearAlerts;
+	exports.clearNewFoodForm = clearNewFoodForm;
 
-	var handleResponse = __webpack_require__(3);
+	var _jquery = __webpack_require__(1);
+
+	var _jquery2 = _interopRequireDefault(_jquery);
+
+	var _initialResponseHandler = __webpack_require__(3);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function renderFoods(foods) {
 	  foods.forEach(function (food) {
-	    $('#foods-table').append('\n      <tr class="table-row" data-food-id="' + food.id + '">\n        <td>\n          ' + food.name + '\n          <span hidden class="filter-target">' + food.name.toLowerCase() + '</span>\n        </td>\n        <td>' + food.calories + '</td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n      </tr>\n      ');
+	    (0, _jquery2.default)('#foods-table').append('\n      <tr class="table-row" data-food-id="' + food.id + '">\n        <td>\n          ' + food.name + '\n          <span hidden class="filter-target">' + food.name.toLowerCase() + '</span>\n        </td>\n        <td>' + food.calories + '</td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n      </tr>\n      ');
 	  });
 	}
 
 	function removeFood(id) {
-	  $('[data-food-id=' + id + ']').remove();
+	  (0, _jquery2.default)('[data-food-id=' + id + ']').remove();
 	}
 
-	var missingFoodField = function missingFoodField(name, calories) {
-	  if (name === "") $('#missing-name-alert').append("Please enter a food name");
-	  if (calories === "") $('#missing-calories-alert').append("Please enter a calorie amount");
-	};
+	function missingFoodField(name, calories) {
+	  if (name === "") (0, _jquery2.default)('#missing-name-alert').append("Please enter a food name");
+	  if (calories === "") (0, _jquery2.default)('#missing-calories-alert').append("Please enter a calorie amount");
+	}
 
-	var renderNewFood = function renderNewFood(food) {
+	function renderNewFood(food) {
 	  var foodInArray = [food];
 
 	  renderFoods(foodInArray);
-	};
+	}
 
 	function search(q) {
-	  if (q === "") return $('.table-row').show();
+	  if (q === "") return (0, _jquery2.default)('.table-row').show();
 
-	  $('.table-row').hide();
-	  $('.table-row:contains(\'' + q + '\')').show();
+	  (0, _jquery2.default)('.table-row').hide();
+	  (0, _jquery2.default)('.table-row:contains(\'' + q + '\')').show();
 	}
 
 	function clearAlerts() {
-	  $(".alerts").empty();
+	  (0, _jquery2.default)(".alerts").empty();
 	}
 
 	function clearNewFoodForm() {
-	  $('#new-food-form [type=text]').val('');
+	  (0, _jquery2.default)('#new-food-form [type=text]').val('');
 	}
-
-	module.exports = {
-	  renderFoods: renderFoods,
-	  removeFood: removeFood,
-	  missingFoodField: missingFoodField,
-	  renderNewFood: renderNewFood,
-	  search: search
-	};
 
 /***/ }),
 /* 5 */
@@ -10571,44 +10591,43 @@
 
 	'use strict';
 
-	var $ = __webpack_require__(1);
-	var postNewFood = __webpack_require__(2).postNewFood;
-	var missingFoodField = __webpack_require__(4).missingFoodField;
-	var deleteFoodRecord = __webpack_require__(2).deleteFoodRecord;
-	var search = __webpack_require__(4).search;
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.foodListeners = foodListeners;
 
-	var newFoodSubmit = function newFoodSubmit() {
-	  $('#new-food-submit-button').on("click", function (event) {
+	var _jquery = __webpack_require__(1);
+
+	var _jquery2 = _interopRequireDefault(_jquery);
+
+	var _foodsFetchRequests = __webpack_require__(2);
+
+	var _foodsResponseHandlers = __webpack_require__(4);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function foodListeners() {
+	  (0, _jquery2.default)('#new-food-submit-button').on("click", function (event) {
 	    event.preventDefault(event);
 
-	    var name = $('#new-food-form [name=new-food-name').val();
-	    var calories = $('#new-food-form [name=new-food-calories').val();
+	    var name = (0, _jquery2.default)('#new-food-form [name=new-food-name').val();
+	    var calories = (0, _jquery2.default)('#new-food-form [name=new-food-calories').val();
 
-	    if (name === "" || calories === "") return missingFoodField(name, calories);
+	    if (name === "" || calories === "") return (0, _foodsResponseHandlers.missingFoodField)(name, calories);
 
-	    postNewFood(name, calories);
+	    (0, _foodsFetchRequests.postNewFood)(name, calories);
 	  });
-	};
 
-	function deleteFood() {
-	  $('#foods-table').on("click", ".delete-btns", function (event) {
+	  (0, _jquery2.default)('#foods-table').on("click", ".delete-btns", function (event) {
 	    var id = event.target.dataset.deleteBtnId;
-	    deleteFoodRecord(id);
+	    (0, _foodsFetchRequests.deleteFoodRecord)(id);
+	  });
+
+	  (0, _jquery2.default)('.filter-form [name=filter-form-value]').on("keyup", function () {
+	    var q = (0, _jquery2.default)('.filter-form [name=filter-form-value]').val();
+	    (0, _foodsResponseHandlers.search)(q);
 	  });
 	}
-
-	function filterFood() {
-	  $('.filter-form [name=filter-form-value]').on("keyup", function () {
-	    var q = $('.filter-form [name=filter-form-value]').val();
-	    search(q);
-	  });
-	}
-
-	module.exports = {
-	  newFoodSubmit: newFoodSubmit,
-	  deleteFood: deleteFood,
-	  filterFood: filterFood
-	};
 
 /***/ }),
 /* 6 */
