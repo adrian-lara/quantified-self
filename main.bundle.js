@@ -10551,7 +10551,7 @@
 
 	function renderFoods(foods) {
 	  foods.forEach(function (food) {
-	    (0, _jquery2.default)('#foods-table').append('\n      <tr class="table-row" data-food-id="' + food.id + '">\n        <td>\n          ' + food.name + '\n          <span hidden class="filter-target">' + food.name.toLowerCase() + '</span>\n        </td>\n        <td>' + food.calories + '</td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n      </tr>\n      ');
+	    (0, _jquery2.default)('#foods-table-header').after('\n      <tr class="table-row" data-food-id="' + food.id + '">\n        <td>\n          ' + food.name + '\n          <span hidden class="filter-target">' + food.name.toLowerCase() + '</span>\n        </td>\n        <td>' + food.calories + '</td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n      </tr>\n      ');
 	  });
 	}
 
