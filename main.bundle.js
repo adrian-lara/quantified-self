@@ -10583,8 +10583,17 @@
 	}
 
 	function missingFoodField(name, calories) {
-	  if (name === "") (0, _jquery2.default)('#missing-name-alert').append("Please enter a food name");
-	  if (calories === "") (0, _jquery2.default)('#missing-calories-alert').append("Please enter a calorie amount");
+	  if (name === "") {
+	    (0, _jquery2.default)('#missing-name-alert').empty().append("Please enter a food name");
+	  } else {
+	    (0, _jquery2.default)('#missing-name-alert').empty();
+	  }
+
+	  if (calories === "") {
+	    (0, _jquery2.default)('#missing-calories-alert').empty().append("Please enter a calorie amount");
+	  } else {
+	    (0, _jquery2.default)('#missing-calories-alert').empty();
+	  }
 	}
 
 	function renderNewFood(food) {
