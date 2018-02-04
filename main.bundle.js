@@ -10574,7 +10574,7 @@
 
 	function renderFoods(foods) {
 	  foods.forEach(function (food) {
-	    (0, _jquery2.default)('#foods-table').append('\n      <tr class="table-row" data-food-id="' + food.id + '">\n        <td class="food-table-cell" contenteditable="true">\n          <span class="food-table-content name">' + food.name + '</span>\n        </td>\n        <td class="food-table-cell" contenteditable="true">\n          <span class="food-table-content calories">' + food.calories + '</span>\n        </td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n        <td hidden><span class="filter-target">' + food.name.toLowerCase() + '</span></td>\n      </tr>\n      ');
+	    (0, _jquery2.default)('#foods-table-header').after('\n      <tr class="table-row" data-food-id="' + food.id + '">\n        <td class="food-table-cell" contenteditable="true">\n          <span class="food-table-content name">' + food.name + '</span>\n        </td>\n        <td class="food-table-cell" contenteditable="true">\n          <span class="food-table-content calories">' + food.calories + '</span>\n        </td>\n        <td class="delete-btns">\n          <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n        </td>\n        <td hidden><span class="filter-target">' + food.name.toLowerCase() + '</span></td>\n      </tr>\n      ');
 	  });
 	}
 
