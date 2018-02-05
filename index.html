@@ -7,7 +7,32 @@
 <body>
   <div id="meals-tables">
   </div>
-  
+
+  <div id="add-foods-to-meal-div">
+    <h2>Foods</h2>
+
+    <a href="http://localhost:8080/webpack-dev-server/foods.html" class="button">Create New</a><br>
+
+    <h4>Search By Name</h4>
+    <input type="text" id="search-foods-by-name"><br><br>
+
+    <h4>Add Selected Foods To:</h4>
+    <div id="add-food-to-meal-buttons">
+    </div><br><br>
+
+    <table id="foods-table-meals-page">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th id="calorie-cell" data-sort="default">Calories</th>
+        <tr>
+      </thead>
+      <tbody id="food-table-tbody">
+      </tbody>
+    </table>
+  </div>
+
   <script src="main.bundle.js"></script>
 </body>
 </html>
