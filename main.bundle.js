@@ -57,11 +57,14 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var mealFetchRequests = __webpack_require__(6);
+	var mealEventListeners = __webpack_require__(8);
 
 	(0, _jquery2.default)(document).ready(function () {
 	  (0, _foodsFetchRequests.getAllFoods)();
 	  (0, _foodsEventListeners.foodListeners)();
 	  mealFetchRequests.getAllMeals();
+	  mealFetchRequests.getAllFoodsMealsPage();
+	  mealEventListeners.addEventListeners();
 	});
 
 /***/ }),
@@ -10460,7 +10463,7 @@
 
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-	var url = 'https://protected-basin-11627.herokuapp.com/';
+	var url = 'https://serene-plateau-95160.herokuapp.com';
 
 	function getAllFoods() {
 	  fetch(url + '/api/v1/foods').then(function (response) {
@@ -10517,21 +10520,14 @@
 
 /***/ }),
 /* 3 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
-	'use strict';
+	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 	exports.handleResponse = handleResponse;
-
-	var _jquery = __webpack_require__(1);
-
-	var _jquery2 = _interopRequireDefault(_jquery);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
 	function handleResponse(response) {
 	  return response.json().then(function (json) {
 	    if (!response.ok) {
@@ -10682,14 +10678,20 @@
 
 	'use strict';
 
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.getAllMeals = getAllMeals;
+	exports.getAllFoodsMealsPage = getAllFoodsMealsPage;
+	exports.postFoodToMeals = postFoodToMeals;
+	exports.deleteFoodFromMeal = deleteFoodFromMeal;
+
 	var _initialResponseHandler = __webpack_require__(3);
 
 	var _mealResponseHandlers = __webpack_require__(7);
 
 	var $ = __webpack_require__(1);
-	var url = "https://rocky-earth-59921.herokuapp.com";
-
-
+	var url = 'https://serene-plateau-95160.herokuapp.com';
 	function getAllMeals() {
 	  fetch(url + '/api/v1/meals').then(function (response) {
 	    return (0, _initialResponseHandler.handleResponse)(response);
@@ -10700,9 +10702,48 @@
 	  });
 	}
 
-	module.exports = {
-	  getAllMeals: getAllMeals
-	};
+	function getAllFoodsMealsPage() {
+	  fetch(url + '/api/v1/foods').then(function (response) {
+	    return (0, _initialResponseHandler.handleResponse)(response);
+	  }).then(function (foods) {
+	    return (0, _mealResponseHandlers.renderFoods)(foods);
+	  }).catch(function (error) {
+	    return console.error({ error: error });
+	  });
+	}
+
+	function postFoodToMeals(mealId, foodId) {
+	  var postOptions = {
+	    method: "POST",
+	    headers: { 'Content-Type': 'application/json' }
+	  };
+	  fetch(url + '/api/v1/meals/' + mealId + '/foods/' + foodId, postOptions).then(function (response) {
+	    return (0, _initialResponseHandler.handleResponse)(response);
+	  }).then(getFoodsForOneMeal(mealId)).catch(function (error) {
+	    return console.error({ error: error });
+	  });
+	}
+
+	function getFoodsForOneMeal(mealId) {
+	  fetch(url + '/api/v1/meals/' + mealId + '/foods').then(function (response) {
+	    return (0, _initialResponseHandler.handleResponse)(response);
+	  }).then(function (meal) {
+	    return (0, _mealResponseHandlers.reRenderMeal)(meal);
+	  }).catch(function (error) {
+	    return console.error({ error: error });
+	  });
+	}
+
+	function deleteFoodFromMeal(mealId, foodId) {
+	  var deleteOptions = {
+	    method: "DELETE"
+	  };
+	  fetch(url + '/api/v1/meals/' + mealId + '/foods/' + foodId, deleteOptions).then(function (response) {
+	    return (0, _initialResponseHandler.handleResponse)(response);
+	  }).then(getFoodsForOneMeal(mealId)).catch(function (error) {
+	    return console.error({ error: error });
+	  });
+	}
 
 /***/ }),
 /* 7 */
@@ -10714,22 +10755,77 @@
 	  value: true
 	});
 	exports.renderMeals = renderMeals;
-	var $ = __webpack_require__(1);
+	exports.reRenderMeal = reRenderMeal;
+	exports.renderFoods = renderFoods;
+	exports.filterFoods = filterFoods;
+	exports.addFoodsToMeals = addFoodsToMeals;
+	exports.sortByCaloriesDesc = sortByCaloriesDesc;
+	exports.sortByCaloriesAsc = sortByCaloriesAsc;
+	exports.sortByCaloriesOrig = sortByCaloriesOrig;
 
+	var _mealFetchRequests = __webpack_require__(6);
+
+	var $ = __webpack_require__(1);
 	function renderMeals(meals) {
 	  var caloriesForEveryMeal = 0;
 	  for (var i = 0; i < meals.length; i++) {
 	    addMealTable(meals[i]);
-	    var totalCalories = addAllFoodRowsToMeal(meals[i]);
-	    caloriesForEveryMeal += totalCalories;
-	    addTotalCaloriesRow(meals[i], totalCalories);
-	    addRemainingCaloriesRow(meals[i], totalCalories);
+	    caloriesForEveryMeal += renderCalorieRow(meals[i]);
+	    renderAddFoodToMealButtons(meals[i]);
 	  }
 	  addTotalsTable(caloriesForEveryMeal);
 	}
 
+	function reRenderMeal(meal) {
+	  $('table[data-meal-id="' + meal.id + '"]').children().remove();
+
+	  $('table[data-meal-id="' + meal.id + '"]').append('\n    <tr>\n      <th>Name</th>\n      <th>Calories</th>\n    </tr>');
+
+	  var caloriesForEveryMeal = 0;
+	  caloriesForEveryMeal += renderCalorieRow(meal);
+	  unCheckCheckboxes();
+	}
+
+	function renderFoods(foods) {
+	  for (var i = 0; i < foods.length; i++) {
+	    $('#food-table-tbody').append('\n      <tr>\n        <td data-foods-id="' + foods[i].id + '"><input data-foods-id="' + foods[i].id + '" class="food-checkbox" type="checkbox"></td>\n        <td class="food-name-cell">' + foods[i].name + '</td>\n        <td>' + foods[i].calories + '</td>\n      </tr>\n        ');
+	  }
+	}
+
+	function filterFoods(event) {
+	  var searchableString = event.delegateTarget.value.toUpperCase();
+	  $('.food-name-cell').each(function () {
+	    if ($(this)[0].innerText.toUpperCase().includes(searchableString)) {
+	      $(this).parent().show();
+	    } else {
+	      $(this).parent().hide();
+	    }
+	  });
+	}
+
+	function addFoodsToMeals(event) {
+	  var mealId = event.target.dataset.mealId;
+
+	  $('.food-checkbox').each(function () {
+	    if (this.checked) {
+	      (0, _mealFetchRequests.postFoodToMeals)(mealId, this.dataset.foodsId);
+	    };
+	  });
+	}
+
+	function unCheckCheckboxes() {
+	  $('input:checkbox:checked').prop('checked', false);
+	}
+
+	function renderCalorieRow(meal) {
+	  var totalCalories = addAllFoodRowsToMeal(meal);
+	  addTotalCaloriesRow(meal, totalCalories);
+	  addRemainingCaloriesRow(meal, totalCalories);
+	  return totalCalories;
+	}
+
 	function addMealTable(meal) {
-	  $('#meals-tables').append('<h2>' + meal.name + '</h2><table data-meal-id="' + meal.id + '" id="' + meal.name.toLowerCase() + '"><tr><th>Name</th><th>Calories</th></tr></table>');
+	  $('#meals-tables').append('\n    <h2>' + meal.name + '</h2>\n    <table data-meal-id="' + meal.id + '" id="' + meal.name.toLowerCase() + '">\n      <tr>\n        <th>Name</th>\n        <th>Calories</th>\n      </tr>\n    </table>');
 	}
 
 	function addAllFoodRowsToMeal(meal) {
@@ -10742,36 +10838,138 @@
 	}
 
 	function addSingleFoodRowToMeal(meal, food) {
-	  $('#' + meal.name.toLowerCase()).append('<tr data-id=' + food.id + '><td>' + food.name + '</td><td>' + food.calories + '</td></tr>');
+	  $('#' + meal.name.toLowerCase()).append('\n    <tr data-id=' + food.id + '>\n      <td>' + food.name + '</td>\n      <td>' + food.calories + '</td>\n      <td class="delete-btns">\n        <img data-delete-btn-id="' + food.id + '" src="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/24/Delete-icon.png" alt="Delete Button">\n      </td>\n    </tr>');
 	}
 
 	function addTotalCaloriesRow(meal, totalCalories) {
-	  $('#' + meal.name.toLowerCase()).append('<tr><td>Total Calories</td><td>' + totalCalories + '</td></tr>');
+	  $('#' + meal.name.toLowerCase()).append('\n    <tr id="' + meal.name + '-total-cal-row">\n      <td>Total Calories</td>\n      <td>' + totalCalories + '</td>\n    </tr>');
 	}
 
 	function addRemainingCaloriesRow(meal, totalCalories) {
-	  var allottedCalorieHash = { "snack": 200, "breakfast": 400, "lunch": 600, "dinner": 800 };
-	  if (allottedCalorieHash[meal.name.toLowerCase()] === undefined) {
-	    $('#' + meal.name.toLowerCase()).append('<tr><td>No Allotted Calories for ' + meal.name + '</td><td></td></tr>');
+	  var allottedCalories = { "snack": 200, "breakfast": 400, "lunch": 600, "dinner": 800 };
+	  if (allottedCalories[meal.name.toLowerCase()] === undefined) {
+	    $('#' + meal.name.toLowerCase()).append('\n      <tr id="' + meal.name + '-rem-cal-row">\n        <td>No Allotted Calories for ' + meal.name + '</td>\n        <td></td>\n      </tr>');
 	  } else {
-	    var remCalorieAmnt = allottedCalorieHash[meal.name.toLowerCase()] - totalCalories;
-	    $('#' + meal.name.toLowerCase()).append('<tr><td>Remaining Calories</td><td id="' + meal.name.toLowerCase() + '-rem-cal">' + remCalorieAmnt + '</td></tr>');
-	    if (remCalorieAmnt < 0) {
-	      $('#' + meal.name.toLowerCase() + '-rem-cal').css("color", "red");
-	    } else {
-	      $('#' + meal.name.toLowerCase() + '-rem-cal').css("color", "green");
-	    }
+	    var remCalorieAmnt = allottedCalories[meal.name.toLowerCase()] - totalCalories;
+	    $('#' + meal.name.toLowerCase()).append('\n      <tr id="' + meal.name + '-rem-cal-row">\n        <td>Remaining Calories</td>\n        <td id="' + meal.name.toLowerCase() + '-rem-cal">' + remCalorieAmnt + '</td>\n      </tr>');
+	    colorChange(meal.name.toLowerCase(), remCalorieAmnt);
 	  }
+	}
+
+	function renderAddFoodToMealButtons(meal) {
+	  $('#add-food-to-meal-buttons').append('\n    <button type="button" data-meal-id="' + meal.id + '">' + meal.name + '</button>\n    ');
 	}
 
 	function addTotalsTable(total) {
 	  var totalTableRemCalories = 2000 - total;
-	  $('#meals-tables').append('<h2>Total</h2><table><tr><td>Goal Calories</td><td>2000</td></tr><tr><td>Calories Consumed</td><td>' + total + '</td></tr><tr><td>Remaining Calories</td><td id="total-table-rem-cal">' + totalTableRemCalories + '</td></tr></table>');
-	  if (totalTableRemCalories < 0) {
-	    $('#total-table-rem-cal').css("color", "red");
+	  $('#meals-tables').append('\n    <h2>Total</h2>\n    <table>\n      <tr>\n        <td>Goal Calories</td>\n        <td>2000</td>\n      </tr>\n      <tr>\n        <td>Calories Consumed</td>\n        <td>' + total + '</td>\n      </tr>\n      <tr>\n        <td>Remaining Calories</td>\n        <td id="totaltable-rem-cal">' + totalTableRemCalories + '</td>\n      </tr>\n    </table>');
+	  colorChange("totaltable", totalTableRemCalories);
+	}
+
+	function colorChange(id, calorieAmount) {
+	  if (calorieAmount < 0) {
+	    $('#' + id + '-rem-cal').css("color", "red");
 	  } else {
-	    $('#total-table-rem-cal').css("color", "green");
+	    $('#' + id + '-rem-cal').css("color", "green");
 	  }
+	}
+
+	function sortByCaloriesDesc(event) {
+	  var columns = event.currentTarget.children[1].children;
+	  var sortedColumns = Array.prototype.slice.call(columns).sort(function (a, b) {
+	    var ac = Number(a.children[2].outerText);
+	    var bc = Number(b.children[2].outerText);
+	    if (ac > bc) {
+	      return 1;
+	    }
+	    if (ac < bc) {
+	      return -1;
+	    }
+	    return 0;
+	  });
+	  sortedColumns.forEach(function (column) {
+	    $('#food-table-tbody').append(column);
+	  });
+	}
+
+	function sortByCaloriesAsc(event) {
+	  var columns = event.currentTarget.children[1].children;
+	  var sortedColumns = Array.prototype.slice.call(columns).sort(function (a, b) {
+	    var ac = Number(a.children[2].outerText);
+	    var bc = Number(b.children[2].outerText);
+	    if (ac > bc) {
+	      return -1;
+	    }
+	    if (ac < bc) {
+	      return 1;
+	    }
+	    return 0;
+	  });
+	  sortedColumns.forEach(function (column) {
+	    $('#food-table-tbody').append(column);
+	  });
+	}
+
+	function sortByCaloriesOrig(event) {
+	  var columns = event.currentTarget.children[1].children;
+	  var sortedColumns = Array.prototype.slice.call(columns).sort(function (a, b) {
+	    var ac = Number(a.children[0].dataset.foodsId);
+	    var bc = Number(b.children[0].dataset.foodsId);
+	    if (ac > bc) {
+	      return -1;
+	    }
+	    if (ac < bc) {
+	      return 1;
+	    }
+	    return 0;
+	  });
+	  sortedColumns.forEach(function (column) {
+	    $('#food-table-tbody').append(column);
+	  });
+	}
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.addEventListeners = addEventListeners;
+
+	var _mealResponseHandlers = __webpack_require__(7);
+
+	var _mealFetchRequests = __webpack_require__(6);
+
+	var $ = __webpack_require__(1);
+	function addEventListeners() {
+	  $('#search-foods-by-name').on('keyup', _mealResponseHandlers.filterFoods);
+
+	  $('#add-food-to-meal-buttons').on('click', function () {
+	    event.preventDefault();
+	    (0, _mealResponseHandlers.addFoodsToMeals)(event);
+	  });
+
+	  $('#meals-tables').on('click', '.delete-btns', function () {
+	    var foodId = event.target.dataset.deleteBtnId;
+	    var mealId = event.target.parentElement.parentElement.parentElement.dataset.mealId;
+	    (0, _mealFetchRequests.deleteFoodFromMeal)(mealId, foodId);
+	  });
+
+	  $('#foods-table-meals-page').on('click', '#calorie-cell', function () {
+	    if (event.target.dataset.sort === "default") {
+	      (0, _mealResponseHandlers.sortByCaloriesDesc)(event);
+	      event.target.dataset.sort = "desc";
+	    } else if (event.target.dataset.sort === "desc") {
+	      (0, _mealResponseHandlers.sortByCaloriesAsc)(event);
+	      event.target.dataset.sort = "asc";
+	    } else {
+	      (0, _mealResponseHandlers.sortByCaloriesOrig)(event);
+	      event.target.dataset.sort = "default";
+	    }
+	  });
 	}
 
 /***/ })
